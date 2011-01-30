@@ -38,9 +38,9 @@ module TmQuickEdit
         return unless controller.response.content_type == 'text/html'
         controller.response.body = TmQuickEdit.insert_text(controller.response.body, :before, /<\/head>/i, <<-HTML)
           <style type="text/css">
-            a.dev-tool-txmt { font-size: 12px; display: none; margin: 0; padding: 2px; text-decoration: none; background-color: #FFF; color: #C408AF; height: 0; width: 0; }
+            a.dev-tool-txmt { font-size: 12px; display: none; margin: 0 4px; padding: 2px; color: #C408AF; height: 0; width: 0; }
             #dev-tool { position: fixed; top: 0; right: 0; z-index: 10000; }
-            #dev-tool a { font-size: 16px; padding: 2px; background-color: #FFF; text-decoration: none; color: #C408AF; }
+            #dev-tool a { font-size: 16px; padding: 2px; text-decoration: none; color: #C408AF; }
           </style>
         HTML
 
@@ -59,7 +59,7 @@ module TmQuickEdit
 
   def self.tm_quick_edit_link(filepath, title)
     fileurl = TM_URL % [filepath, 0, 0]
-    '<a href="%s" class="dev-tool-txmt" title="%s">&#9998; %s</a>' % [fileurl, title, title]
+    '<a href="%s" class="dev-tool-txmt" title="%s"><span style="display: inline-block">&#9998; %s</span></a>' % [fileurl, title, title]
   end
 
   def self.insert_text(content, position, pattern, new_text)
