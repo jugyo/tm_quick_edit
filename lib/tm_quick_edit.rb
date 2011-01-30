@@ -7,6 +7,8 @@ module TmQuickEdit
         def _render_partial_with_tm_quick_edit(options, &block)
           result = _render_partial_without_tm_quick_edit(options, &block)
           template = @renderer.send(:find_template)
+          return result unless template.is_a?(::ActionView::Template)
+
           filelink = _tm_quick_edit_link(template.identifier, template.virtual_path)
           filelink.html_safe + result
         end
@@ -14,6 +16,8 @@ module TmQuickEdit
 
         def _render_template_with_tm_quick_edit(template, layout = nil, options = {})
           result = _render_template_without_tm_quick_edit(template, layout, options)
+          return result unless template.is_a?(::ActionView::Template)
+
           filelink = _tm_quick_edit_link(template.identifier, template.virtual_path)
           TmQuickEdit.insert_text(result, :after, /<body>/i, filelink)
         end
@@ -38,6 +42,7 @@ module TmQuickEdit
 
     class Filter
       def self.filter(controller)
+        return unless controller.response.content_type == 'text/html'
         controller.response.body = TmQuickEdit.insert_text(controller.response.body, :before, /<\/head>/i, <<-HTML)
           <style type="text/css">
             a.dev-tool-txmt { font-size: 12px; display: none; margin: 0; padding: 2px; text-decoration: none; background-color: #FFF; color: #C408AF; height: 0; width: 0; }
