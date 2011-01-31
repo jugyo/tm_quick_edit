@@ -8,6 +8,11 @@ Screenshot
 
 ![doc.png](https://github.com/jugyo/tm_quick_edit/raw/master/doc/doc.png)
 
+Screencast
+----
+
+[demo of tm_quick_edit on Vimeo](http://vimeo.com/19278412)
+
 Install
 ----
 
