@@ -9,7 +9,7 @@ module TmQuickEdit
           template = @renderer.send(:find_template)
           return result unless template.is_a?(::ActionView::Template)
 
-          filelink = _tm_quick_edit_link(template.identifier, template.virtual_path)
+          filelink = TmQuickEdit.tm_quick_edit_link(template.identifier, template.virtual_path)
           filelink.html_safe + result
         end
         alias_method_chain :_render_partial, :tm_quick_edit
@@ -18,17 +18,10 @@ module TmQuickEdit
           result = _render_template_without_tm_quick_edit(template, layout, options)
           return result unless template.is_a?(::ActionView::Template)
 
-          filelink = _tm_quick_edit_link(template.identifier, template.virtual_path)
-          TmQuickEdit.insert_text(result, :after, /<body>/i, filelink)
+          filelink = TmQuickEdit.tm_quick_edit_link(template.identifier, template.virtual_path)
+          TmQuickEdit.insert_text(result, :after, /<body[^>]*>/i, filelink)
         end
         alias_method_chain :_render_template, :tm_quick_edit
-
-        private
-
-        def _tm_quick_edit_link(filepath, title)
-          fileurl = TM_URL % [filepath, 0, 0]
-          '<a href="%s" class="dev-tool-txmt" title="%s">&#9998; %s</a>' % [fileurl, title, title]
-        end
       end
     end
   end
@@ -51,6 +44,10 @@ module TmQuickEdit
           </style>
         HTML
 
+        filelink = TmQuickEdit.tm_quick_edit_link(
+          Rails.root.join("app/controllers/#{controller.controller_path}_controller.rb"), "#{controller.controller_path}_controller")
+        controller.response.body = TmQuickEdit.insert_text(controller.response.body, :after, /<body[^>]*>/i, filelink)
+
         controller.response.body = TmQuickEdit.insert_text(controller.response.body, :before, /<\/body>/i, <<-HTML)
           <div id="dev-tool">
             <a href="javascript:void(0);" onclick="$('.dev-tool-txmt').toggle()" title="tm_quick_edit">&#10037;</a>
@@ -58,6 +55,11 @@ module TmQuickEdit
         HTML
       end
     end
+  end
+
+  def self.tm_quick_edit_link(filepath, title)
+    fileurl = TM_URL % [filepath, 0, 0]
+    '<a href="%s" class="dev-tool-txmt" title="%s">&#9998; %s</a>' % [fileurl, title, title]
   end
 
   def self.insert_text(content, position, pattern, new_text)
